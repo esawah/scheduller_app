@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "623349200934",
+    "project_id": "scheduller-app-aee2f",
+    "storage_bucket": "scheduller-app-aee2f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:623349200934:android:ba7ec5c7cf86844d614ee7",
+        "android_client_info": {
+          "package_name": "com.example.scheduller_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3AP9Qsk-jIJjoQbVU_lryzHTHkpsneiM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
