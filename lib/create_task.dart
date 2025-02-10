@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateTask extends StatefulWidget {
   const CreateTask({super.key});
@@ -13,6 +15,7 @@ class _CreateTaskState extends State<CreateTask> {
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
   bool _isReminderOn = false;
+  String _selectedCategory = "Life"; // Default category
 
   final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
   final DateFormat _timeFormat = DateFormat('HH:mm');
@@ -52,6 +55,69 @@ class _CreateTaskState extends State<CreateTask> {
         _timeController.text = _timeFormat.format(formattedTime);
       });
     }
+  }
+
+  Future<void> _saveTask() async {
+    if (_taskNameController.text.isEmpty ||
+        _dateController.text.isEmpty ||
+        _timeController.text.isEmpty) {
+      return;
+    }
+
+    
+    String taskName = _taskNameController.text;
+    String date = _dateController.text;
+    String time = _timeController.text;
+    String category = _selectedCategory;
+    bool reminder = _isReminderOn;
+
+  
+    Map<String, dynamic> newTask = {
+      "name": taskName,
+      "date": date,
+      "time": time,
+      "category": category,
+      "reminder": reminder,
+    };
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? tasksJson = prefs.getString("tasks");
+    List<dynamic> tasksList = tasksJson != null ? jsonDecode(tasksJson) : [];
+    tasksList.add(newTask);
+    await prefs.setString("tasks", jsonEncode(tasksList));
+
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Success"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Task Name: $taskName"),
+            Text("Date: $date"),
+            Text("Time: $time"),
+            Text("Category: $category ✓"),
+            Text("Reminder: ${reminder ? 'On' : 'Off'}"),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+
+    setState(() {
+      _taskNameController.clear();
+      _dateController.clear();
+      _timeController.clear();
+      _isReminderOn = false;
+      _selectedCategory = "Life";
+    });
   }
 
   @override
@@ -100,7 +166,8 @@ class _CreateTaskState extends State<CreateTask> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Padding(
-                      padding: EdgeInsets.only(left: 30, right: 30, top: 30),
+                      padding:
+                          EdgeInsets.only(left: 30, right: 30, top: 30),
                       child: Text(
                         "Name",
                         style: TextStyle(
@@ -149,17 +216,18 @@ class _CreateTaskState extends State<CreateTask> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
-                            children: [
-                              const Icon(
+                            children: const [
+                              Icon(
                                 Icons.notifications,
                                 color: Colors.black,
                                 size: 35,
                               ),
-                              const SizedBox(width: 10),
-                              const Text(
+                              SizedBox(width: 10),
+                              Text(
                                 'Remind me',
                                 style: TextStyle(
                                   fontSize: 20,
@@ -235,25 +303,12 @@ class _CreateTaskState extends State<CreateTask> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text("Success"),
-                                content: const Text("Create Task Successful"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text("OK"),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+                          onPressed: _saveTask,
                           child: const Text(
                             "Create Task",
                             style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -277,7 +332,11 @@ class _CreateTaskState extends State<CreateTask> {
           foregroundColor: Colors.black,
           minimumSize: const Size(110, 50),
         ),
-        onPressed: () {},
+        onPressed: () {
+          setState(() {
+            _selectedCategory = text;
+          });
+        },
         child: Text(text, style: const TextStyle(fontSize: 16)),
       ),
     );
