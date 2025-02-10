@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scheduller_app/create_task.dart';
 import 'forgot_password_page.dart';
 import 'sign_up_page.dart';
 
@@ -86,7 +87,10 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      print("Login clicked");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CreateTask()),
+                      );
                     },
                     child: Icon(Icons.arrow_forward,
                         color: Colors.white, size: 28),
